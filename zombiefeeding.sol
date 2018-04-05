@@ -2,6 +2,7 @@ pragma solidity ^0.4.17;
 
 import "./zombiefactory.sol";
 
+
 contract KittyInterface {
     function getKitty(uint256 _id) external view returns (
         bool isGestating,
@@ -16,10 +17,9 @@ contract KittyInterface {
         uint256 genes);
 }
 
+
 contract ZombieFeeding is ZombieFactory {
-
     KittyInterface kittyContract;
-
     modifier onlyOwnerOf(uint _zombieId) {
         require(msg.sender == zombieToOwner[_zombieId]);
         _;
@@ -27,6 +27,12 @@ contract ZombieFeeding is ZombieFactory {
 
     function setKittyContractAddress(address _address) external onlyOwner {
         kittyContract = KittyInterface(_address);
+    }
+
+    function feedOnKitty(uint _zombieId, uint _kittyId) public {
+        uint kittyDna;
+        (, , , , , , , , , kittyDna) = kittyContract.getKitty(_kittyId);
+        feedAndMultiply(_zombieId, kittyDna, "kitty");
     }
 
     function _triggerCooldown(Zombie storage _zombie) internal {
@@ -49,11 +55,5 @@ contract ZombieFeeding is ZombieFactory {
         }
         _createZombie("NoName", newDna);
         _triggerCooldown(myZombie);
-    }
-
-    function feedOnKitty(uint _zombieId, uint _kittyId) public {
-        uint kittyDna;
-        (,,,,,,,,,kittyDna) = kittyContract.getKitty(_kittyId);
-        feedAndMultiply(_zombieId, kittyDna, "kitty");
-    }
+    } 
 }
